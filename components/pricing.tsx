@@ -4,6 +4,7 @@ import { IconCheck, IconX } from "@tabler/icons-react";
 import React from "react";
 import { Button } from "./button";
 
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -61,7 +62,7 @@ export function PricingComponent() {
       period: "A Partir",
       features: [
         { text: "Etude de vos besoins", included: true },
-        { text: "Devis gratuit ", included: true },
+        { text: "Devis gratuit", included: true },
         { text: "Création de votre logiciel", included: true },
         { text: "Support et maintenance", included: true },
         { text: "Mise en production", included: true },
@@ -77,23 +78,35 @@ export function PricingComponent() {
   // Mobile Card Component
   const MobileCard = ({ plan }: { plan: Plan }) => {
     return (
-      <div className="mb-4 last:mb-0">
-        <div className="bg-neutral-900 rounded-xl p-4">
+      <motion.div
+        className="mb-4 last:mb-0"
+        whileHover={{ scale: 1.02 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="bg-gray-900/50 border border-gray-800 backdrop-blur-sm rounded-xl p-4 transition-all duration-300 hover:bg-gray-800/50">
+          {plan.badge && (
+            <div className="text-center -mt-8 mb-4">
+              <span className="text-white text-xs px-3 py-1 rounded-full bg-gray-800/50 border border-gray-700">
+                {plan.badge}
+              </span>
+            </div>
+          )}
+
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h3 className="text-white font-semibold">{plan.name}</h3>
-              <p className="text-sm text-neutral-400">
+              <h3 className="text-white font-semibold text-sm">{plan.name}</h3>
+              <p className="text-xs text-gray-400 mt-1">
                 {plan.shortDescription}
               </p>
             </div>
             <div className="text-right">
               {plan.originalPrice && (
-                <div className="text-xs text-neutral-500 line-through">
-                  ${plan.originalPrice}
+                <div className="text-xs text-gray-500 line-through">
+                  €{plan.originalPrice}
                 </div>
               )}
               <div className="text-xl font-bold text-white">€{plan.price}</div>
-              <div className="text-xs text-neutral-400">{plan.period}</div>
+              <div className="text-xs text-gray-400">{plan.period}</div>
             </div>
           </div>
 
@@ -101,14 +114,14 @@ export function PricingComponent() {
             {plan.features.map((feature, idx) => (
               <div key={idx} className="flex items-center gap-2">
                 {feature.included ? (
-                  <IconCheck className="h-4 w-4 text-neutral-400" />
+                  <IconCheck className="h-4 w-4 text-green-400" />
                 ) : (
-                  <IconX className="h-4 w-4 text-neutral-600" />
+                  <IconX className="h-4 w-4 text-gray-600" />
                 )}
                 <span
                   className={cn(
                     "text-xs",
-                    feature.included ? "text-neutral-300" : "text-neutral-500"
+                    feature.included ? "text-gray-300" : "text-gray-500"
                   )}
                 >
                   {feature.text}
@@ -119,105 +132,104 @@ export function PricingComponent() {
 
           <Button
             onClick={plan.onClick}
-            className={cn(
-              "w-full py-2 text-sm rounded-lg",
-              plan.id === planType.basic
-                ? "bg-gradient-to-b from-neutral-700 to-neutral-800"
-                : "!bg-[linear-gradient(180deg,#B6B6B6_0%,#313131_100%)]"
-            )}
+            className="w-full py-2 text-sm rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-all duration-300"
           >
             {plan.buttonText}
           </Button>
 
           {plan.subText && (
-            <p className="text-xs text-neutral-500 text-center mt-2">
+            <p className="text-xs text-gray-500 text-center mt-2">
               {plan.subText}
             </p>
           )}
         </div>
-      </div>
+      </motion.div>
     );
   };
 
   // Desktop Card Component
   const DesktopCard = ({ plan }: { plan: Plan }) => {
     return (
-      <div
+      <motion.div
         className={cn(
-          "rounded-3xl bg-neutral-900 p-8 ring-1 ring-neutral-700",
-          plan.badge && "ring-1 ring-neutral-700"
+          "rounded-xl bg-gray-900/50 border border-gray-800 backdrop-blur-sm p-8 transition-all duration-300 hover:bg-gray-800/50 hover:border-gray-700",
+          plan.badge && "ring-1 ring-blue-500/20"
         )}
+        whileHover={{ scale: 1.02, y: -5 }}
+        transition={{ duration: 0.3 }}
       >
         {plan.badge && (
           <div className="text-center -mt-12 mb-6">
-            <span className="text-white text-sm px-4 py-1 rounded-[128px] bg-gradient-to-b from-[#393939] via-[#141414] to-[#303030] shadow-[0px_2px_6.4px_0px_rgba(0,0,0,0.60)]">
+            <span className="text-white text-sm px-4 py-2 rounded-full bg-gray-800/50 border border-gray-700 backdrop-blur-sm">
               {plan.badge}
             </span>
           </div>
         )}
+
         <div className="flex flex-col h-full">
           <div className="mb-8">
-            <div className="inline-flex items-center font-bold justify-center p-2 rounded-[10px] border border-[rgba(62,62,64,0.77)] bg-[rgba(255,255,255,0)]">
+            <div className="inline-flex items-center font-bold justify-center p-3 rounded-lg border border-gray-700 bg-gray-800/30 backdrop-blur-sm">
               <h3 className="text-sm text-white">{plan.name}</h3>
             </div>
-            <div>
-              <p className="text-md text-neutral-400 my-4">
-                {plan.shortDescription}
-              </p>
-            </div>
+
             <div className="mt-4">
+              <p className="text-md text-gray-400">{plan.shortDescription}</p>
+            </div>
+
+            <div className="mt-6">
               {plan.originalPrice && (
-                <span className="text-neutral-500 line-through mr-2">
+                <span className="text-gray-500 line-through mr-2 text-lg">
                   €{plan.originalPrice}
                 </span>
               )}
               <span className="text-5xl font-bold text-white">
                 €{plan.price}
               </span>
-              <span className="text-neutral-400 ml-2">{plan.period}</span>
+              <span className="text-gray-400 ml-2 text-lg">{plan.period}</span>
             </div>
           </div>
 
           <div className="space-y-4 mb-8">
             {plan.features.map((feature, idx) => (
-              <div key={idx} className="flex items-center gap-3">
+              <motion.div
+                key={idx}
+                className="flex items-center gap-3"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: idx * 0.1 }}
+              >
                 {feature.included ? (
-                  <IconCheck className="h-5 w-5 text-neutral-400" />
+                  <IconCheck className="h-5 w-5 text-green-400" />
                 ) : (
-                  <IconX className="h-5 w-5 text-neutral-600" />
+                  <IconX className="h-5 w-5 text-gray-600" />
                 )}
                 <span
                   className={cn(
                     "text-sm",
-                    feature.included ? "text-neutral-300" : "text-neutral-500"
+                    feature.included ? "text-gray-300" : "text-gray-500"
                   )}
                 >
                   {feature.text}
                 </span>
-              </div>
+              </motion.div>
             ))}
           </div>
 
           <div className="mt-auto">
             <Button
               onClick={plan.onClick}
-              className={cn(
-                "w-full py-3 rounded-xl",
-                plan.id === planType.basic
-                  ? "bg-gradient-to-b from-neutral-700 to-neutral-800 hover:from-neutral-600 hover:to-neutral-700"
-                  : "!bg-[linear-gradient(180deg,#B6B6B6_0%,#313131_100%)] hover:shadow-[0_4px_12px_0px_rgba(0,0,0,0.4)]"
-              )}
+              className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25"
             >
               {plan.buttonText}
             </Button>
             {plan.subText && (
-              <div className="text-sm text-neutral-500 text-center mt-4">
+              <div className="text-sm text-gray-500 text-center mt-4">
                 {plan.subText}
               </div>
             )}
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   };
 
@@ -256,29 +268,51 @@ export function PricingComponent() {
 }
 
 export function Pricing() {
-  const isMobile = useMediaQuery("(max-width: 768px)");
-
   return (
     <div
       id="pricing"
-      className="relative isolate w-full overflow-hidden px-4 py-16 md:py-40 pt-10 md:pt-60 lg:px-4"
+      className="relative w-full overflow-hidden bg-black/[0.96] antialiased"
     >
-      {!isMobile && (
-        <div className="pt-32 md:pt-48 mt-[600px]">
-          <BackgroundShape />
-        </div>
-      )}
+      {/* Background avec grille de points */}
       <div
         className={cn(
-          "z-20",
-          isMobile ? "flex flex-col mt-0 relative" : "absolute inset-0 mt-80"
+          "pointer-events-none absolute inset-0 [background-size:40px_40px] select-none",
+          "[background-image:linear-gradient(to_right,#171717_1px,transparent_1px),linear-gradient(to_bottom,#171717_1px,transparent_1px)]"
         )}
-      >
+      />
+
+      {/* Gradient radial central */}
+      <div className="absolute inset-0 pointer-events-none">
         <div
-          className={cn(
-            "relative z-50 mx-auto mb-4",
-            isMobile ? "w-full" : "max-w-4xl text-center"
-          )}
+          className="absolute inset-0 opacity-30"
+          style={{
+            background: `radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.03) 40%, transparent 70%)`,
+          }}
+        />
+      </div>
+
+      {/* Gradients d'accent sur les côtés */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div
+          className="absolute top-0 left-0 w-1/3 h-full opacity-20"
+          style={{
+            background: `linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, transparent 50%)`,
+          }}
+        />
+        <div
+          className="absolute top-0 right-0 w-1/3 h-full opacity-20"
+          style={{
+            background: `linear-gradient(225deg, rgba(59, 130, 246, 0.08) 0%, transparent 50%)`,
+          }}
+        />
+      </div>
+
+      <div className="relative z-20 px-4 py-16 md:py-40 pt-10 md:pt-60 lg:px-4">
+        <motion.div
+          className="relative z-50 mx-auto mb-4 max-w-4xl text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
         >
           <h2
             className={cn(
@@ -288,76 +322,26 @@ export function Pricing() {
           >
             Un seul paiement ...
           </h2>
-        </div>
-        <p
-          className={cn(
-            "text-xl text-neutral-400 mt-4 px-4",
-            isMobile ? "w-full" : "max-w-lg text-center mx-auto"
-          )}
+        </motion.div>
+
+        <motion.p
+          className="text-xl text-gray-400 mt-4 px-4 max-w-lg text-center mx-auto"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
         >
           Pas d&apos;abonnement pas de frais caché !
-        </p>
-        <div className="mx-auto mt-12 md:mt-20">
+        </motion.p>
+
+        <motion.div
+          className="mx-auto mt-12 md:mt-20"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+        >
           <PricingComponent />
-        </div>
+        </motion.div>
       </div>
-      {!isMobile && (
-        <div
-          className="absolute inset-0 rounded-[20px]"
-          style={{
-            background:
-              "linear-gradient(179.87deg, rgba(0, 0, 0, 0) 0.11%, rgba(0, 0, 0, 0.8) 69.48%, #000000 92.79%)",
-          }}
-        />
-      )}
-    </div>
-  );
-}
-
-function BackgroundShape() {
-  const isMobile = useMediaQuery("(max-width: 768px)");
-  const size = isMobile ? 600 : 1400;
-  const innerSize = isMobile ? 400 : 1000;
-
-  return (
-    <div className="absolute inset-0 overflow-hidden">
-      <div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[rgba(255,255,255,0.1)]"
-        style={{
-          width: size,
-          height: size,
-          clipPath: "circle(50% at 50% 50%)",
-          background: `
-            radial-gradient(
-              circle at center,
-              rgba(40, 40, 40, 0.8) 0%,
-              rgba(20, 20, 20, 0.6) 30%,
-              rgba(0, 0, 0, 0.4) 70%
-            )
-          `,
-        }}
-      >
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(255, 255, 255, 0.3) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255, 255, 255, 0.3) 1px, transparent 1px)
-            `,
-            backgroundSize: isMobile ? "20px 40px" : "60px 120px",
-          }}
-        />
-      </div>
-      <div
-        className="absolute bg-black z-2 left-1/2 top-1/2 
-          -translate-x-1/2 -translate-y-1/2 rounded-full 
-          border border-[rgba(255,255,255,0.1)]
-          shadow-[0_0_200px_80px_rgba(255,255,255,0.1)]"
-        style={{
-          width: innerSize,
-          height: innerSize,
-        }}
-      />
     </div>
   );
 }
