@@ -2,7 +2,7 @@
 import { cn } from "@/lib/utils";
 import { motion, MotionValue, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
-import React, { useRef } from "react";
+import React, { useMemo, useRef } from "react";
 import Balancer from "react-wrap-balancer";
 import { Button } from "./button";
 import DashboardPage from "./dashboard";
@@ -28,26 +28,35 @@ export function Hero() {
     };
   }, []);
 
-  const scaleDimensions = () => {
-    return isMobile ? [0.7, 0.9] : [1.05, 1.2];
-  };
+  // Memoize les valeurs de transformation pour éviter les recalculs
+  const transformRanges = useMemo(
+    () => ({
+      rotate: isMobile ? [10, 0] : [20, 0],
+      scale: isMobile ? [0.7, 0.9] : [1.05, 1.2],
+      titleTranslate: isMobile ? [0, -20] : [0, -50],
+      cardTranslate: isMobile ? [0, 20] : [0, 50],
+    }),
+    [isMobile]
+  );
 
+  // Les hooks useTransform doivent être appelés directement dans le composant
   const rotate = useTransform(
     scrollYProgress,
     [0, 0.3],
-    isMobile ? [10, 0] : [20, 0]
+    transformRanges.rotate
   );
-  const scale = useTransform(scrollYProgress, [0, 0.8], scaleDimensions());
+  const scale = useTransform(scrollYProgress, [0, 0.8], transformRanges.scale);
   const titleTranslate = useTransform(
     scrollYProgress,
     [0, 0.6],
-    isMobile ? [0, -20] : [0, -50]
+    transformRanges.titleTranslate
   );
   const cardTranslate = useTransform(
     scrollYProgress,
     [0, 0.6],
-    isMobile ? [0, 20] : [0, 50]
+    transformRanges.cardTranslate
   );
+
   const titleSection = (
     <div className="text-balance relative z-20 mx-auto mb-4 mt-4 max-w-4xl text-center text-4xl font-semibold tracking-tight text-neutral-300 md:text-7xl">
       <Balancer>
@@ -57,8 +66,13 @@ export function Hero() {
           style={{
             y: titleTranslate,
             scale: scale,
+            willChange: "transform", // Force l'accélération GPU
           }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          transition={{
+            duration: 0.5,
+            delay: 0.2,
+            ease: "easeOut", // Utilise une courbe d'animation plus douce
+          }}
           className={cn(
             "inline-block bg-[radial-gradient(61.17%_178.53%_at_38.83%_-13.54%,#3B3B3B_0%,#888787_12.61%,#FFFFFF_50%,#888787_80%,#3B3B3B_100%)]",
             "bg-clip-text text-transparent text-4xl md:text-7xl pt-12"
@@ -74,7 +88,12 @@ export function Hero() {
     <motion.p
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2, delay: 0.5 }}
+      transition={{
+        duration: 0.2,
+        delay: 0.5,
+        ease: "easeOut",
+      }}
+      style={{ willChange: "transform, opacity" }}
       className="relative z-20 mx-auto mt-4 max-w-xl px-4 text-center text-base/6 text-gray-500  sm:text-base"
     >
       Nous Créons des logiciel sur mesure pour les entreprises. <br />
@@ -88,7 +107,12 @@ export function Hero() {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2, delay: 0.7 }}
+      transition={{
+        duration: 0.2,
+        delay: 0.7,
+        ease: "easeOut",
+      }}
+      style={{ willChange: "transform, opacity" }}
       className="mb-8 mt-6 sm:mb-10 sm:mt-8 flex w-full flex-col items-center justify-center gap-4 px-4 sm:px-8 sm:flex-row md:mb-20"
     >
       <Button
@@ -106,13 +130,19 @@ export function Hero() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.9, ease: "easeOut" }}
+      transition={{
+        duration: 0.4,
+        delay: 0.9,
+        ease: "easeOut",
+      }}
       ref={cardRef}
+      style={{ willChange: "transform, opacity" }}
       className="relative mx-auto w-full max-w-7xl p-2 backdrop-blur-lg md:p-4"
     >
       <div
         style={{
           perspective: "1000px",
+          willChange: "transform", // Optimisation GPU pour la perspective
         }}
         className="rounded-[50px] relative"
       >
@@ -142,6 +172,9 @@ export function Hero() {
     <div
       ref={containerRef}
       className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 pt-20 md:px-8 md:pt-40 "
+      style={{
+        willChange: "scroll-position", // Optimise les performances de scroll
+      }}
     >
       {titleSection}
 
@@ -162,6 +195,7 @@ export function Hero() {
     </div>
   );
 }
+
 export const Card = ({
   rotate,
   scale,
@@ -179,6 +213,8 @@ export const Card = ({
         rotateX: rotate,
         translateY: translate,
         scale,
+        willChange: "transform", // Force l'accélération GPU
+        transform: "translate3d(0, 0, 0)", // Force la création d'un layer GPU
         boxShadow:
           "0 0 #0000004d, 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 149px 60px #0000000a, 0 233px 65px #00000003",
       }}
