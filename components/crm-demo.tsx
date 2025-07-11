@@ -393,8 +393,8 @@ export default function CRMDemo() {
 
   // États pour l'animation de démonstration
   const [isDemoCompleted, setIsDemoCompleted] = useState(false);
-  const [isHovering, setIsHovering] = useState(false);
   const [hasAnimationPlayed, setHasAnimationPlayed] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Configuration du scroll tracking pour l'animation
@@ -422,10 +422,15 @@ export default function CRMDemo() {
       // Marquer que l'animation a été jouée
       setHasAnimationPlayed(true);
 
-      // Simuler une création de contact et rendre l'animation permanente
+      // Simuler une création de contact et afficher le message
       setTimeout(() => {
         setIsDemoCompleted(true);
-        // Le message reste visible en permanence, il ne disparaît que lors du survol
+        setShowMessage(true);
+
+        // Faire disparaître le message après 1.5 seconde
+        setTimeout(() => {
+          setShowMessage(false);
+        }, 1500);
       }, 1000);
     }
   }, [contacts, hasAnimationPlayed]);
@@ -604,7 +609,7 @@ export default function CRMDemo() {
     <>
       {/* Overlay d'invitation similaire au planning-demo */}
       <AnimatePresence mode="wait">
-        {isDemoCompleted && !isHovering && (
+        {isDemoCompleted && showMessage && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{
@@ -686,8 +691,6 @@ export default function CRMDemo() {
         <div
           className="container mx-auto py-6 space-y-6 bg-white"
           ref={containerRef}
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => setIsHovering(false)}
         >
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">

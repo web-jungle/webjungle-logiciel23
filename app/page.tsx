@@ -1,9 +1,10 @@
-import CTA from "@/components/cta";
+import { SimpleCTAWithImages } from "@/components/cta-feature";
 import { FrequentlyAskedQuestions } from "@/components/faq";
 import { Hero } from "@/components/hero";
 import { SpotlightLogoCloud } from "@/components/logos-cloud";
 import { Pricing } from "@/components/pricing";
 import Section2 from "@/components/section2";
+
 import { Testimonials } from "@/components/testimonials";
 import { cn } from "@/lib/utils";
 
@@ -24,7 +25,7 @@ export default function Home() {
       <Testimonials />
       <Pricing />
       <FrequentlyAskedQuestions />
-      <CTA />
+      <SimpleCTAWithImages />
     </div>
   );
 }

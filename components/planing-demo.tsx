@@ -811,6 +811,8 @@ const ResourceView = ({
   hasAnimationPlayed,
   setHasAnimationPlayed,
   setIsInView,
+  showMessage,
+  setShowMessage,
 }: {
   events: Evenement[];
   collaborateurs: Collaborateur[];
@@ -857,6 +859,8 @@ const ResourceView = ({
   hasAnimationPlayed: boolean;
   setHasAnimationPlayed: React.Dispatch<React.SetStateAction<boolean>>;
   setIsInView: React.Dispatch<React.SetStateAction<boolean>>;
+  showMessage: boolean;
+  setShowMessage: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(new Date());
   const [weekDays, setWeekDays] = useState<Date[]>([]);
@@ -1008,6 +1012,12 @@ const ResourceView = ({
               setTimeout(() => {
                 setDemoAnimationPhase("complete");
                 setIsDemoCompleted(true);
+                setShowMessage(true);
+
+                // Faire disparaître le message après 1.5 seconde
+                setTimeout(() => {
+                  setShowMessage(false);
+                }, 1500);
 
                 setTimeout(() => {
                   setIsAnimatingDemo(false);
@@ -2422,8 +2432,8 @@ export default function PlanningDemo({
     collaborateurId: string;
     dayIndex: number;
   } | null>(null);
-  const [isHovering, setIsHovering] = useState(false);
   const [hasAnimationPlayed, setHasAnimationPlayed] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
   // Ajout de l'état pour la visibilité du composant (doit être ici AVANT le useMotionValueEvent)
   const [isInView, setIsInView] = useState(true);
 
@@ -2440,7 +2450,7 @@ export default function PlanningDemo({
     <>
       {/* Overlay d'invitation complètement séparé */}
       <AnimatePresence mode="wait">
-        {isDemoCompleted && isInView && !isHovering && (
+        {isDemoCompleted && isInView && showMessage && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{
@@ -2520,11 +2530,7 @@ export default function PlanningDemo({
         )}
       </AnimatePresence>
 
-      <div
-        className="space-y-4 bg-white text-gray-900 light relative"
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
-      >
+      <div className="space-y-4 bg-white text-gray-900 light relative">
         {/* En-tête avec titre et contrôles */}
         <div className="text-center">
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
@@ -2618,6 +2624,8 @@ export default function PlanningDemo({
             hasAnimationPlayed={hasAnimationPlayed}
             setHasAnimationPlayed={setHasAnimationPlayed}
             setIsInView={setIsInView}
+            showMessage={showMessage}
+            setShowMessage={setShowMessage}
           />
           <Legend />
         </>
