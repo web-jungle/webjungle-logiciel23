@@ -174,6 +174,7 @@ export const Section2 = () => {
       <Section
         title="Gestion CRM"
         description="Centralisez toutes les informations de vos clients, suivez les interactions, gérez les relances, automatisez les tâches commerciales et améliorez votre relation client au quotidien. Notre système CRM intuitif vous permet de transformer vos prospects en clients fidèles."
+        isLargeOnMobile={true}
       >
         <CRMDemo />
       </Section>
