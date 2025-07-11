@@ -21,7 +21,7 @@ const Card = ({
 }) => {
   return (
     <div
-      className={`max-w-2xl z-40 group mx-auto isolate group ${
+      className={`max-w-2xl relative bg-neutral-950 rounded-lg z-40 group mx-auto isolate group ${
         isLargeOnMobile ? "h-[35rem]" : "h-[20rem]"
       } md:h-[30rem] w-full border-4 border-neutral-900 p-2 md:p-2 bg-charcoal rounded-[30px] shadow-2xl relative`}
     >
@@ -141,7 +141,11 @@ const Section = ({
           </div>
 
           {/* Texte */}
-          <div className={`${reverse ? "lg:col-start-1" : ""}`}>
+          <div
+            className={`${
+              reverse ? "lg:col-start-1" : ""
+            } relative bg-neutral-950 rounded-lg p-4`}
+          >
             <div ref={textRef} className="space-y-6">
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
                 {title}
@@ -159,7 +163,7 @@ const Section = ({
 
 export const Section2 = () => {
   return (
-    <div className="bg-black">
+    <div className="">
       {/* Section Planning */}
       <Section
         title="Planning & Ressources"

@@ -30,7 +30,7 @@ export function FrequentlyAskedQuestions() {
   const [open, setOpen] = React.useState<string | null>(null);
 
   return (
-    <div className="w-full max-w-7xl mx-auto my-10 md:my-20 py-10 md:py-20 px-4 md:px-8">
+    <div className="w-full max-w-7xl relative bg-neutral-950 rounded-lg mx-auto my-10 md:my-20 py-10 md:py-20 px-4 md:px-8">
       <div className="text-balance relative z-20 mx-auto mb-4 max-w-4xl text-center">
         <h2
           className={cn(

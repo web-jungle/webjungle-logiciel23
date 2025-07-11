@@ -18,13 +18,13 @@ import { Button } from "./button";
 
 export function SimpleCTAWithImages() {
   return (
-    <div className="mx-auto relative  flex w-full max-w-7xl flex-col items-center justify-between px-4 py-20 md:flex-row md:px-8">
+    <div className="mx-auto relative rounded-lg mb-10  bg-neutral-950  flex w-full max-w-7xl flex-col items-center justify-between px-4 py-20 md:flex-row md:px-8">
       <div className="flex flex-col">
         <motion.h2 className="mx-auto max-w-xl text-center text-xl font-bold text-neutral-300  md:mx-0 md:text-left md:text-5xl dark:text-white">
           Prêt à optimiser votre entreprise ?
         </motion.h2>
         <p className="mx-auto mt-8 max-w-md text-center text-sm text-neutral-400 md:mx-0 md:text-left md:text-base dark:text-neutral-400">
-          emander un rendez-vous de 30 minutes avec un expert pour discuter de
+          Demander un rendez-vous de 30 minutes avec un expert pour discuter de
           votre projet. C&apos;est gratuit et sans engagement.
         </p>
         <FeaturedImages
