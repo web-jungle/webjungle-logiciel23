@@ -1,5 +1,7 @@
 import { SimpleCTAWithImages } from "@/components/cta-feature";
+import Description from "@/components/description";
 import { FrequentlyAskedQuestions } from "@/components/faq";
+import FormulaireCreation from "@/components/formulaire-creation";
 import { Hero } from "@/components/hero";
 import { SpotlightLogoCloud } from "@/components/logos-cloud";
 import { Pricing } from "@/components/pricing";
@@ -18,8 +20,9 @@ export default function Home() {
         )}
       />
       <Hero />
-
+      <Description />
       <Section2 />
+      <FormulaireCreation />
       <SpotlightLogoCloud />
 
       <Testimonials />

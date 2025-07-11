@@ -277,8 +277,16 @@ export function Hero() {
     >
       <Button
         as={Link}
-        href="/contact"
+        href="#formulaire-creation"
         variant="primary"
+        className="w-full sm:w-60 h-12 rounded-full flex items-center justify-center"
+      >
+        Créer mon logiciel
+      </Button>
+      <Button
+        as={Link}
+        href="/contact"
+        variant="secondary"
         className="w-full sm:w-60 h-12 rounded-full flex items-center justify-center"
       >
         Prenez rendez-vous
@@ -324,7 +332,7 @@ export function Hero() {
   return (
     <div
       ref={containerRef}
-      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 pt-20 md:px-8 md:pt-40 "
+      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 pt-20 md:px-8 md:pt-40 mb-16 md:mb-20"
       style={{
         willChange: "scroll-position",
       }}
