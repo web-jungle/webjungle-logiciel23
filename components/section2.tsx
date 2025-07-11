@@ -15,6 +15,11 @@ import { GlowingEffect } from "./ui/glowing-effect";
 // Enregistrer le plugin ScrollTrigger
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
+
+  // Forcer le refresh de ScrollTrigger après le chargement
+  window.addEventListener("load", () => {
+    ScrollTrigger.refresh();
+  });
 }
 
 const Card = ({
@@ -27,7 +32,7 @@ const Card = ({
   return (
     <div
       className={`max-w-2xl relative group mx-auto isolate ${
-        isLargeOnMobile ? "h-[35rem]" : "h-[20rem]"
+        isLargeOnMobile ? "h-[40rem] sm:h-[45rem]" : "h-[28rem] sm:h-[32rem]"
       } md:h-[30rem] w-full border border-neutral-800 bg-neutral-950/80 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden`}
       style={{ willChange: "transform" }}
     >
@@ -40,17 +45,33 @@ const Card = ({
         autoRotate={false}
       />
 
-      <div className="absolute h-32 w-full bottom-0 inset-x-0 z-10 pointer-events-none bg-gradient-to-t from-neutral-950 via-neutral-950/50 to-transparent" />
+      <div className="absolute h-16 sm:h-24 md:h-32 w-full bottom-0 inset-x-0 z-10 pointer-events-none bg-gradient-to-t from-neutral-950 via-neutral-950/50 to-transparent" />
 
-      <div className="h-full w-full overflow-hidden rounded-2xl bg-transparent relative z-20 p-3">
-        {/* Conteneur simulant un écran avec scale optimisé */}
+      <div className="h-full w-full overflow-hidden rounded-2xl bg-transparent relative z-20 p-2 sm:p-3">
+        {/* Conteneur simulant un écran avec scale optimisé pour mobile */}
         <div
-          className="w-full h-full origin-top-left overflow-hidden"
+          className="w-full h-full origin-top-left overflow-hidden md:scale-90"
           style={{
-            transform: isLargeOnMobile ? "scale(0.75)" : "scale(0.6)",
+            // Sur mobile, pas de scale pour éviter les problèmes
+            transform:
+              typeof window !== "undefined" && window.innerWidth < 768
+                ? "scale(1)"
+                : isLargeOnMobile
+                ? "scale(0.9)"
+                : "scale(0.8)",
             transformOrigin: "top left",
-            width: isLargeOnMobile ? "133%" : "167%",
-            height: isLargeOnMobile ? "133%" : "167%",
+            width:
+              typeof window !== "undefined" && window.innerWidth < 768
+                ? "100%"
+                : isLargeOnMobile
+                ? "111%"
+                : "125%",
+            height:
+              typeof window !== "undefined" && window.innerWidth < 768
+                ? "100%"
+                : isLargeOnMobile
+                ? "111%"
+                : "125%",
           }}
         >
           {children}
@@ -111,62 +132,91 @@ const Section = ({
   useEffect(() => {
     if (!sectionRef.current || !cardRef.current || !textRef.current) return;
 
-    const ctx = gsap.context(() => {
-      // Animation optimisée pour la card
-      gsap.fromTo(
-        cardRef.current,
-        {
-          opacity: 0,
-          x: reverse ? 60 : -60,
-          rotationY: reverse ? 15 : -15,
-        },
-        {
-          opacity: 1,
-          x: 0,
-          rotationY: 0,
-          duration: 1.2,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: cardRef.current,
-            start: "top 85%",
-            end: "bottom 15%",
-            toggleActions: "play none none reverse",
-          },
-        }
-      );
+    // Sur mobile, on peut avoir des problèmes avec ScrollTrigger
+    // On s'assure que les éléments sont visibles par défaut
+    const isMobile = window.innerWidth < 768;
 
-      // Animation améliorée pour le texte
-      gsap.fromTo(
-        textRef.current,
-        {
-          opacity: 0,
-          x: reverse ? -40 : 40,
-          y: 20,
-        },
-        {
-          opacity: 1,
-          x: 0,
-          y: 0,
-          duration: 1,
-          delay: 0.2,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: textRef.current,
-            start: "top 85%",
-            end: "bottom 15%",
-            toggleActions: "play none none reverse",
-          },
-        }
-      );
-    }, sectionRef);
+    if (isMobile) {
+      // Sur mobile, on applique une animation plus simple sans ScrollTrigger
+      gsap.set([cardRef.current, textRef.current], { opacity: 1 });
 
-    return () => ctx.revert();
+      // Animation simple au chargement
+      gsap.from(cardRef.current, {
+        opacity: 0,
+        y: 30,
+        duration: 0.8,
+        ease: "power2.out",
+        delay: 0.2,
+      });
+
+      gsap.from(textRef.current, {
+        opacity: 0,
+        y: 30,
+        duration: 0.8,
+        ease: "power2.out",
+        delay: 0.4,
+      });
+    } else {
+      // Sur desktop, on garde les animations avec ScrollTrigger
+      const ctx = gsap.context(() => {
+        // Animation optimisée pour la card
+        gsap.fromTo(
+          cardRef.current,
+          {
+            opacity: 0,
+            x: reverse ? 60 : -60,
+            rotationY: reverse ? 15 : -15,
+          },
+          {
+            opacity: 1,
+            x: 0,
+            rotationY: 0,
+            duration: 1.2,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: cardRef.current,
+              start: "top 90%",
+              end: "bottom 10%",
+              toggleActions: "play none none reverse",
+              markers: false, // Pour debug
+            },
+          }
+        );
+
+        // Animation améliorée pour le texte
+        gsap.fromTo(
+          textRef.current,
+          {
+            opacity: 0,
+            x: reverse ? -40 : 40,
+            y: 20,
+          },
+          {
+            opacity: 1,
+            x: 0,
+            y: 0,
+            duration: 1,
+            delay: 0.2,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: textRef.current,
+              start: "top 90%",
+              end: "bottom 10%",
+              toggleActions: "play none none reverse",
+              markers: false, // Pour debug
+            },
+          }
+        );
+      }, sectionRef);
+
+      return () => ctx.revert();
+    }
   }, [reverse]);
 
   return (
     <div
       ref={sectionRef}
-      className="w-full min-h-screen flex items-center justify-center py-16 md:py-24 px-4 relative overflow-hidden"
+      className="w-full min-h-screen flex items-center justify-center py-8 sm:py-12 md:py-24 px-3 sm:px-4 relative overflow-hidden"
       style={{ willChange: "scroll-position" }}
     >
       {/* Background gradient subtil */}
@@ -176,32 +226,40 @@ const Section = ({
 
       <div className="max-w-7xl mx-auto w-full relative z-10">
         <div
-          className={`grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center ${
+          className={`grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-16 items-center ${
             reverse ? "lg:grid-flow-col-dense" : ""
           }`}
         >
           {/* Card */}
-          <div className={`${reverse ? "lg:col-start-2" : ""}`}>
-            <div ref={cardRef} className="relative">
+          <div
+            className={`${
+              reverse ? "lg:col-start-2" : ""
+            } order-1 lg:order-none`}
+          >
+            <div ref={cardRef} className="relative opacity-100">
               <Card isLargeOnMobile={isLargeOnMobile}>{children}</Card>
             </div>
           </div>
 
           {/* Texte amélioré */}
-          <div className={`${reverse ? "lg:col-start-1" : ""} relative`}>
+          <div
+            className={`${
+              reverse ? "lg:col-start-1" : ""
+            } relative order-2 lg:order-none`}
+          >
             <div
               ref={textRef}
-              className={`p-8 rounded-2xl border ${accentColors[accent].border} bg-gradient-to-br ${accentColors[accent].bg} backdrop-blur-sm shadow-2xl ${accentColors[accent].glow}`}
+              className={`p-4 sm:p-6 md:p-8 rounded-2xl border ${accentColors[accent].border} bg-gradient-to-br ${accentColors[accent].bg} backdrop-blur-sm shadow-2xl ${accentColors[accent].glow} opacity-100`}
               style={{ willChange: "transform, opacity" }}
             >
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {/* Icon et badge */}
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                   <FeatureIconContainer className="flex justify-center items-center">
                     {icon}
                   </FeatureIconContainer>
                   <span
-                    className={`text-sm font-semibold ${accentColors[accent].text} uppercase tracking-wide`}
+                    className={`text-xs sm:text-sm font-semibold ${accentColors[accent].text} uppercase tracking-wide`}
                   >
                     Solution Pro
                   </span>
@@ -211,33 +269,33 @@ const Section = ({
                 <Heading
                   as="h2"
                   size="md"
-                  className="bg-gradient-to-br from-white via-gray-100 to-gray-300 bg-clip-text text-transparent leading-tight"
+                  className="bg-gradient-to-br from-white via-gray-100 to-gray-300 bg-clip-text text-transparent leading-tight text-xl sm:text-2xl md:text-3xl"
                 >
                   <Balancer>{title}</Balancer>
                 </Heading>
 
                 {/* Description */}
-                <Subheading className="text-gray-300 leading-relaxed">
+                <Subheading className="text-gray-300 leading-relaxed text-sm sm:text-base">
                   <Balancer>{description}</Balancer>
                 </Subheading>
 
                 {/* Liste des bénéfices */}
-                <div className="space-y-3 pt-4">
-                  <div className="flex items-center gap-3 text-sm text-gray-300">
+                <div className="space-y-2 sm:space-y-3 pt-3 sm:pt-4">
+                  <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-300">
                     <ArrowRight
-                      className={`h-4 w-4 ${accentColors[accent].text} flex-shrink-0`}
+                      className={`h-3 w-3 sm:h-4 sm:w-4 ${accentColors[accent].text} flex-shrink-0`}
                     />
                     <span>Interface intuitive et moderne</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-gray-300">
+                  <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-300">
                     <ArrowRight
-                      className={`h-4 w-4 ${accentColors[accent].text} flex-shrink-0`}
+                      className={`h-3 w-3 sm:h-4 sm:w-4 ${accentColors[accent].text} flex-shrink-0`}
                     />
                     <span>Automatisation intelligente</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-gray-300">
+                  <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-300">
                     <ArrowRight
-                      className={`h-4 w-4 ${accentColors[accent].text} flex-shrink-0`}
+                      className={`h-3 w-3 sm:h-4 sm:w-4 ${accentColors[accent].text} flex-shrink-0`}
                     />
                     <span>Reporting en temps réel</span>
                   </div>
@@ -252,8 +310,18 @@ const Section = ({
 };
 
 export const Section2 = () => {
+  // Vérifier si on est sur mobile au chargement
+  useEffect(() => {
+    // Forcer un refresh de ScrollTrigger après montage du composant
+    if (typeof window !== "undefined" && ScrollTrigger) {
+      setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 100);
+    }
+  }, []);
+
   return (
-    <div className="relative bg-black">
+    <div className="relative bg-black min-h-screen">
       {/* Section Planning */}
       <Section
         title="Planning & Ressources Intelligents"
