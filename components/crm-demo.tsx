@@ -32,7 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import {
@@ -695,11 +695,8 @@ export default function CRMDemo() {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                CRM Démo
+                CRM Web jungle saas
               </h1>
-              <Badge variant="outline" className="text-xs sm:text-sm">
-                Composant autonome
-              </Badge>
             </div>
             <Button
               onClick={handleCreateContact}
@@ -721,29 +718,6 @@ export default function CRMDemo() {
             value={activeTab}
             onValueChange={setActiveTab}
           >
-            <TabsList className="bg-gray-100 w-full sm:w-auto">
-              <TabsTrigger
-                value="kanban"
-                className="text-gray-700 text-xs sm:text-sm flex-1 sm:flex-initial"
-              >
-                <span className="sm:hidden">Kanban</span>
-                <span className="hidden sm:inline">Tableau Kanban</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="contacts"
-                className="text-gray-700 text-xs sm:text-sm flex-1 sm:flex-initial"
-              >
-                Contacts
-              </TabsTrigger>
-              <TabsTrigger
-                value="stats"
-                className="text-gray-700 text-xs sm:text-sm flex-1 sm:flex-initial"
-              >
-                <span className="sm:hidden">Stats</span>
-                <span className="hidden sm:inline">Statistiques</span>
-              </TabsTrigger>
-            </TabsList>
-
             <TabsContent value="kanban" className="mt-6">
               <KanbanBoardDemo
                 contacts={contacts}

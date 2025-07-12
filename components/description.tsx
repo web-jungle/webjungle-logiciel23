@@ -67,7 +67,7 @@ export default function Description() {
             className="bg-gradient-to-b from-white via-cyan-100 to-cyan-300 bg-clip-text text-transparent mb-3"
             size="md"
           >
-            Logiciels Sur Mesure pour Pros
+            Logiciels Sur Mesure pour tout secteur d'activité
           </Heading>
 
           <Subheading className="max-w-2xl mx-auto text-gray-300 text-base">
@@ -122,11 +122,10 @@ export default function Description() {
                   Performance 10x
                 </h3>
                 <p className="text-gray-400">
-                  Code optimisé pour{" "}
+                  Le logiciel est pensé et optimisé pour{" "}
                   <strong className="text-purple-400">
                     vos besoins précis
                   </strong>
-                  , pas de fonctions inutiles.
                 </p>
               </div>
             </div>
@@ -136,11 +135,13 @@ export default function Description() {
             <div className="flex items-start gap-3 p-4 rounded-lg bg-neutral-950/50 border border-neutral-800">
               <Shield className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
               <div>
-                <h3 className="text-white font-semibold mb-1">Sécurité FR</h3>
+                <h3 className="text-white font-semibold mb-1">
+                  Ultra sécurisé
+                </h3>
                 <p className="text-gray-400">
-                  Vos données restent chez vous.{" "}
-                  <strong className="text-blue-400">RGPD natif</strong>,
-                  hébergement français.
+                  Nous mettons l&apos;accent sur la sécurité et la {""}
+                  <strong className="text-blue-400">confidentialité</strong> des
+                  données.
                 </p>
               </div>
             </div>

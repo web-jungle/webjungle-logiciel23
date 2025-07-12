@@ -11,6 +11,7 @@ import { Heading } from "./heading";
 import PlanningDemo from "./planing-demo";
 import { Subheading } from "./subheading";
 import { GlowingEffect } from "./ui/glowing-effect";
+import { Spotlight } from "./ui/lihth";
 
 // Enregistrer le plugin ScrollTrigger
 if (typeof window !== "undefined") {
@@ -25,13 +26,15 @@ if (typeof window !== "undefined") {
 const Card = ({
   children,
   isLargeOnMobile = false,
+  customScale = null,
 }: {
   children: React.ReactNode;
   isLargeOnMobile?: boolean;
+  customScale?: number | null;
 }) => {
   return (
     <div
-      className={`max-w-2xl relative group mx-auto isolate ${
+      className={`max-w-xl relative group mx-auto isolate ${
         isLargeOnMobile ? "h-[40rem] sm:h-[45rem]" : "h-[28rem] sm:h-[32rem]"
       } md:h-[30rem] w-full border border-neutral-800 bg-neutral-950/80 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden`}
       style={{ willChange: "transform" }}
@@ -56,6 +59,8 @@ const Card = ({
             transform:
               typeof window !== "undefined" && window.innerWidth < 768
                 ? "scale(1)"
+                : customScale
+                ? `scale(${customScale})`
                 : isLargeOnMobile
                 ? "scale(0.9)"
                 : "scale(0.8)",
@@ -63,12 +68,16 @@ const Card = ({
             width:
               typeof window !== "undefined" && window.innerWidth < 768
                 ? "100%"
+                : customScale
+                ? `${(1 / customScale) * 100}%`
                 : isLargeOnMobile
                 ? "111%"
                 : "125%",
             height:
               typeof window !== "undefined" && window.innerWidth < 768
                 ? "100%"
+                : customScale
+                ? `${(1 / customScale) * 100}%`
                 : isLargeOnMobile
                 ? "111%"
                 : "125%",
@@ -89,6 +98,7 @@ const Section = ({
   isLargeOnMobile = false,
   icon,
   accent = "cyan",
+  customScale = null,
 }: {
   title: string;
   description: string;
@@ -97,6 +107,7 @@ const Section = ({
   isLargeOnMobile?: boolean;
   icon: React.ReactNode;
   accent?: "cyan" | "green" | "purple" | "orange";
+  customScale?: number | null;
 }) => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -237,7 +248,9 @@ const Section = ({
             } order-1 lg:order-none`}
           >
             <div ref={cardRef} className="relative opacity-100">
-              <Card isLargeOnMobile={isLargeOnMobile}>{children}</Card>
+              <Card isLargeOnMobile={isLargeOnMobile} customScale={customScale}>
+                {children}
+              </Card>
             </div>
           </div>
 
@@ -258,11 +271,6 @@ const Section = ({
                   <FeatureIconContainer className="flex justify-center items-center">
                     {icon}
                   </FeatureIconContainer>
-                  <span
-                    className={`text-xs sm:text-sm font-semibold ${accentColors[accent].text} uppercase tracking-wide`}
-                  >
-                    Solution Pro
-                  </span>
                 </div>
 
                 {/* Titre avec gradient */}
@@ -321,7 +329,11 @@ export const Section2 = () => {
   }, []);
 
   return (
-    <div className="relative bg-black min-h-screen">
+    <div
+      className="relative bg-black overflow-hidden"
+      style={{ minHeight: "300vh" }}
+    >
+      <Spotlight contained={true} />
       {/* Section Planning */}
       <Section
         title="Planning & Ressources Intelligents"
@@ -353,6 +365,7 @@ export const Section2 = () => {
         isLargeOnMobile={true}
         icon={<UserCheck className="h-6 w-6 text-purple-500" />}
         accent="purple"
+        customScale={0.6}
       >
         <DemandeCongeComplete />
       </Section>
