@@ -27,15 +27,21 @@ const Card = ({
   children,
   isLargeOnMobile = false,
   customScale = null,
+  mobileHeight = null,
 }: {
   children: React.ReactNode;
   isLargeOnMobile?: boolean;
   customScale?: number | null;
+  mobileHeight?: string | null;
 }) => {
   return (
     <div
       className={`max-w-xl relative group mx-auto isolate ${
-        isLargeOnMobile ? "h-[40rem] sm:h-[45rem]" : "h-[28rem] sm:h-[32rem]"
+        mobileHeight
+          ? `${mobileHeight} sm:h-[45rem]`
+          : isLargeOnMobile
+          ? "h-[40rem] sm:h-[45rem]"
+          : "h-[28rem] sm:h-[32rem]"
       } md:h-[30rem] w-full border border-neutral-800 bg-neutral-950/80 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden`}
       style={{ willChange: "transform" }}
     >
@@ -99,6 +105,7 @@ const Section = ({
   icon,
   accent = "cyan",
   customScale = null,
+  mobileHeight = null,
 }: {
   title: string;
   description: string;
@@ -108,6 +115,7 @@ const Section = ({
   icon: React.ReactNode;
   accent?: "cyan" | "green" | "purple" | "orange";
   customScale?: number | null;
+  mobileHeight?: string | null;
 }) => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -148,25 +156,109 @@ const Section = ({
     const isMobile = window.innerWidth < 768;
 
     if (isMobile) {
-      // Sur mobile, on applique une animation plus simple sans ScrollTrigger
-      gsap.set([cardRef.current, textRef.current], { opacity: 1 });
-
-      // Animation simple au chargement
-      gsap.from(cardRef.current, {
+      // Initialiser les éléments avec opacity 0 dès le départ pour éviter le "flash"
+      gsap.set([cardRef.current, textRef.current], {
         opacity: 0,
-        y: 30,
-        duration: 0.8,
-        ease: "power2.out",
-        delay: 0.2,
+        y: 60,
+        rotationX: reverse ? -25 : 25,
+        scale: 0.8,
       });
 
-      gsap.from(textRef.current, {
-        opacity: 0,
-        y: 30,
-        duration: 0.8,
-        ease: "power2.out",
-        delay: 0.4,
-      });
+      // Initialiser les éléments de bénéfices
+      const benefitElements =
+        textRef.current?.querySelectorAll(".benefit-item");
+      if (benefitElements && benefitElements.length > 0) {
+        gsap.set(benefitElements, {
+          opacity: 0,
+          x: reverse ? -20 : 20,
+        });
+      }
+
+      // Animation mobile sophistiquée avec Intersection Observer
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
+              // Animation d'entrée séquencée pour mobile
+              const tl = gsap.timeline();
+
+              // Animation de la card avec rotation et scale
+              tl.fromTo(
+                cardRef.current,
+                {
+                  opacity: 0,
+                  y: 60,
+                  rotationX: reverse ? -25 : 25,
+                  scale: 0.8,
+                },
+                {
+                  opacity: 1,
+                  y: 0,
+                  rotationX: 0,
+                  scale: 1,
+                  duration: 1,
+                  ease: "power3.out",
+                }
+              );
+
+              // Animation du texte avec slide et fade
+              tl.fromTo(
+                textRef.current,
+                {
+                  opacity: 0,
+                  x: reverse ? -50 : 50,
+                  y: 30,
+                  scale: 0.9,
+                },
+                {
+                  opacity: 1,
+                  x: 0,
+                  y: 0,
+                  scale: 1,
+                  duration: 0.8,
+                  ease: "power2.out",
+                },
+                "-=0.5"
+              );
+
+              // Animation des éléments intérieurs avec stagger
+              const benefitElements =
+                textRef.current?.querySelectorAll(".benefit-item");
+              if (benefitElements && benefitElements.length > 0) {
+                tl.fromTo(
+                  benefitElements,
+                  {
+                    opacity: 0,
+                    x: reverse ? -20 : 20,
+                  },
+                  {
+                    opacity: 1,
+                    x: 0,
+                    duration: 0.5,
+                    ease: "power2.out",
+                    stagger: 0.1,
+                  },
+                  "-=0.3"
+                );
+              }
+
+              // Déconnexion après animation
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        {
+          threshold: [0.1, 0.3, 0.5],
+          rootMargin: "-10% 0px -10% 0px",
+        }
+      );
+
+      if (sectionRef.current) {
+        observer.observe(sectionRef.current);
+      }
+
+      // Cleanup
+      return () => observer.disconnect();
     } else {
       // Sur desktop, on garde les animations avec ScrollTrigger
       const ctx = gsap.context(() => {
@@ -248,7 +340,11 @@ const Section = ({
             } order-1 lg:order-none`}
           >
             <div ref={cardRef} className="relative opacity-100">
-              <Card isLargeOnMobile={isLargeOnMobile} customScale={customScale}>
+              <Card
+                isLargeOnMobile={isLargeOnMobile}
+                customScale={customScale}
+                mobileHeight={mobileHeight}
+              >
                 {children}
               </Card>
             </div>
@@ -289,19 +385,19 @@ const Section = ({
 
                 {/* Liste des bénéfices */}
                 <div className="space-y-2 sm:space-y-3 pt-3 sm:pt-4">
-                  <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-300">
+                  <div className="benefit-item flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-300">
                     <ArrowRight
                       className={`h-3 w-3 sm:h-4 sm:w-4 ${accentColors[accent].text} flex-shrink-0`}
                     />
                     <span>Interface intuitive et moderne</span>
                   </div>
-                  <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-300">
+                  <div className="benefit-item flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-300">
                     <ArrowRight
                       className={`h-3 w-3 sm:h-4 sm:w-4 ${accentColors[accent].text} flex-shrink-0`}
                     />
                     <span>Automatisation intelligente</span>
                   </div>
-                  <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-300">
+                  <div className="benefit-item flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-300">
                     <ArrowRight
                       className={`h-3 w-3 sm:h-4 sm:w-4 ${accentColors[accent].text} flex-shrink-0`}
                     />
@@ -366,6 +462,7 @@ export const Section2 = () => {
         icon={<UserCheck className="h-6 w-6 text-purple-500" />}
         accent="purple"
         customScale={0.6}
+        mobileHeight="h-[50rem]"
       >
         <DemandeCongeComplete />
       </Section>

@@ -262,7 +262,7 @@ export function DemandeCongeComplete() {
 
   return (
     <div
-      className="h-[80vh] max-w-6xl mx-auto p-4 flex flex-col bg-white text-black !dark:bg-white !dark:text-black"
+      className="h-full max-w-6xl mx-auto p-4 flex flex-col bg-white text-black !dark:bg-white !dark:text-black"
       data-theme="light"
     >
       {/* En-tête */}
