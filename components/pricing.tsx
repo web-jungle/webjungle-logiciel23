@@ -56,7 +56,7 @@ export function PricingComponent() {
     {
       id: planType.basic,
       name: "Un seul paiement pas d'abonnement",
-      shortDescription: "Try For Free",
+      shortDescription: "",
       badge: "Tout inclus",
       price: 850,
       period: "A Partir",

@@ -81,6 +81,9 @@ export function Footer() {
             </p>
             <p className="text-white">06 11 07 65 01 </p>
             <p className="text-white">contact@web-jungle.com</p>
+            <Link href="https://www.web-jungle.fr/" className="text-white">
+              Création de site web
+            </Link>
           </div>
         </div>
       </div>

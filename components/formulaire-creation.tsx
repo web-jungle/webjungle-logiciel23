@@ -53,7 +53,7 @@ const optionsEntreprise = [
   {
     id: "autre",
     label: "Autre",
-    description: "Autre secteur d&apos;activité",
+    description: "Autre secteur d'activité",
     icon: Settings,
   },
 ];
