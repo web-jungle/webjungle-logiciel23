@@ -429,7 +429,7 @@ export const Section2 = () => {
       className="relative bg-black overflow-hidden"
       style={{ minHeight: "300vh" }}
     >
-      <Spotlight contained={true} />
+      <Spotlight contained={false} />
       {/* Section Planning */}
       <Section
         title="Planning & Ressources Intelligents"
