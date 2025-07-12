@@ -1,16 +1,16 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { IconMenu2, IconX } from "@tabler/icons-react";
-import {
-  AnimatePresence,
-  motion,
-  useMotionValueEvent,
-  useScroll,
-} from "motion/react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "./button";
 import { Logo } from "./logo";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 interface NavbarProps {
   navItems: {
@@ -40,68 +40,146 @@ export const Navbar = () => {
     },
   ];
 
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollY } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
-  });
   const [visible, setVisible] = useState<boolean>(false);
+  const navRef = useRef<HTMLDivElement>(null);
 
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    if (latest > 100) {
-      setVisible(true);
-    } else {
-      setVisible(false);
-    }
-  });
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 100) {
+        setVisible(true);
+      } else {
+        setVisible(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <motion.div ref={ref} className="w-full fixed top-2 inset-x-0 z-50">
+    <div ref={navRef} className="w-full fixed top-2 inset-x-0 z-50">
       <DesktopNav visible={visible} navItems={navItems} />
       <MobileNav visible={visible} navItems={navItems} />
-    </motion.div>
+    </div>
   );
 };
 
 const DesktopNav = ({ navItems, visible }: NavbarProps) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const desktopNavRef = useRef<HTMLDivElement>(null);
+  const navContentRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLDivElement>(null);
+  const hoverEffectRef = useRef<HTMLDivElement>(null);
 
-  return (
-    <motion.div
-      onMouseLeave={() => setHoveredIndex(null)}
-      animate={{
+  useEffect(() => {
+    if (desktopNavRef.current && navContentRef.current && buttonRef.current) {
+      gsap.set(desktopNavRef.current, {
+        width: "80%",
+        height: "64px",
+        background: "rgba(0, 0, 0, 0.4)",
+        backdropFilter: "blur(16px)",
+      });
+
+      gsap.set(navContentRef.current, {
+        scale: 1,
+        justifyContent: "center",
+      });
+
+      gsap.set(buttonRef.current, {
+        scale: 1,
+        opacity: 1,
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (desktopNavRef.current && navContentRef.current && buttonRef.current) {
+      const tl = gsap.timeline({
+        defaults: { duration: 0.4, ease: "back.out(1.7)" },
+      });
+
+      tl.to(desktopNavRef.current, {
         backdropFilter: "blur(16px)",
         background: visible ? "rgba(0, 0, 0, 0.7)" : "rgba(0, 0, 0, 0.4)",
         width: visible ? "38%" : "80%",
         height: visible ? "48px" : "64px",
         y: visible ? 8 : 0,
-      }}
-      initial={{
-        width: "80%",
-        height: "64px",
-        background: "rgba(0, 0, 0, 0.4)",
-      }}
-      transition={{
-        type: "spring",
-        stiffness: 400,
-        damping: 30,
-      }}
+        duration: 0.4,
+        ease: "back.out(1.7)",
+      }).to(
+        navContentRef.current,
+        {
+          scale: visible ? 0.9 : 1,
+          justifyContent: visible ? "flex-end" : "center",
+          duration: 0.4,
+          ease: "back.out(1.7)",
+        },
+        0
+      );
+
+      if (!visible) {
+        gsap.to(buttonRef.current, {
+          scale: 1,
+          opacity: 1,
+          duration: 0.4,
+          ease: "back.out(1.7)",
+        });
+      } else {
+        gsap.to(buttonRef.current, {
+          scale: 0.8,
+          opacity: 0,
+          duration: 0.2,
+        });
+      }
+    }
+  }, [visible]);
+
+  const handleMouseEnter = (idx: number) => {
+    setHoveredIndex(idx);
+    if (hoverEffectRef.current) {
+      gsap.set(hoverEffectRef.current, {
+        opacity: 0,
+        scale: 0.8,
+        background:
+          "radial-gradient(circle at center, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 50%, transparent 100%)",
+      });
+      gsap.to(hoverEffectRef.current, {
+        opacity: 1,
+        scale: 1.1,
+        duration: 0.4,
+        ease: "back.out(1.7)",
+      });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredIndex(null);
+    if (hoverEffectRef.current) {
+      gsap.to(hoverEffectRef.current, {
+        opacity: 0,
+        scale: 0.8,
+        duration: 0.2,
+      });
+    }
+  };
+
+  return (
+    <div
+      ref={desktopNavRef}
+      onMouseLeave={handleMouseLeave}
       className={cn(
         "hidden lg:flex flex-row self-center items-center justify-between py-2 mx-auto px-6 rounded-full relative z-[60] backdrop-saturate-[1.8]"
       )}
     >
       <Logo />
-      <motion.div
+      <div
+        ref={navContentRef}
         className="lg:flex flex-row flex-1 items-center justify-center space-x-1 text-sm"
-        animate={{
-          scale: visible ? 0.9 : 1,
-          justifyContent: visible ? "flex-end" : "center",
-        }}
       >
         {navItems.map((navItem, idx) => (
-          <motion.div
+          <div
             key={`nav-item-${idx}`}
-            onHoverStart={() => setHoveredIndex(idx)}
+            onMouseEnter={() => handleMouseEnter(idx)}
             className="relative"
           >
             <Link
@@ -110,94 +188,95 @@ const DesktopNav = ({ navItems, visible }: NavbarProps) => {
             >
               <span className="relative z-10">{navItem.name}</span>
               {hoveredIndex === idx && (
-                <motion.div
-                  layoutId="menu-hover"
+                <div
+                  ref={hoverEffectRef}
                   className="absolute inset-0 rounded-full bg-gradient-to-r from-white/10 to-white/20"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{
-                    opacity: 1,
-                    scale: 1.1,
-                    background:
-                      "radial-gradient(circle at center, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 50%, transparent 100%)",
-                  }}
-                  exit={{
-                    opacity: 0,
-                    scale: 0.8,
-                    transition: {
-                      duration: 0.2,
-                    },
-                  }}
-                  transition={{
-                    type: "spring",
-                    bounce: 0.4,
-                    duration: 0.4,
-                  }}
                 />
               )}
             </Link>
-          </motion.div>
+          </div>
         ))}
-      </motion.div>
-      <div className="flex items-center gap-2">
-        <AnimatePresence mode="popLayout" initial={false}>
-          {!visible && (
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{
-                scale: 1,
-                opacity: 1,
-                transition: {
-                  type: "spring",
-                  stiffness: 400,
-                  damping: 25,
-                },
-              }}
-              exit={{
-                scale: 0.8,
-                opacity: 0,
-                transition: {
-                  duration: 0.2,
-                },
-              }}
-            >
-              <Button
-                as={Link}
-                href="/contact"
-                variant="primary"
-                className="hidden md:block rounded-full bg-white/20 hover:bg-white/30 text-white border-0"
-              >
-                Contactez-nous
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
-    </motion.div>
+      <div className="flex items-center gap-2">
+        <div ref={buttonRef}>
+          <Button
+            as={Link}
+            href="/contact"
+            variant="primary"
+            className="hidden md:block rounded-full bg-white/20 hover:bg-white/30 text-white border-0"
+          >
+            Contactez-nous
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 };
 
 const MobileNav = ({ navItems, visible }: NavbarProps) => {
   const [open, setOpen] = useState(false);
+  const mobileNavRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (mobileNavRef.current) {
+      gsap.set(mobileNavRef.current, {
+        width: "80%",
+        background: "rgba(0, 0, 0, 0.4)",
+        backdropFilter: "blur(16px)",
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (mobileNavRef.current) {
+      gsap.to(mobileNavRef.current, {
+        backdropFilter: "blur(16px)",
+        background: visible ? "rgba(0, 0, 0, 0.7)" : "rgba(0, 0, 0, 0.4)",
+        width: visible ? "80%" : "90%",
+        y: visible ? 0 : 8,
+        borderRadius: open ? "24px" : "9999px",
+        padding: "8px 16px",
+        duration: 0.4,
+        ease: "back.out(1.7)",
+      });
+    }
+  }, [visible, open]);
+
+  useEffect(() => {
+    if (mobileMenuRef.current) {
+      if (open) {
+        gsap.set(mobileMenuRef.current, {
+          opacity: 0,
+          y: -20,
+          display: "flex",
+        });
+        gsap.to(mobileMenuRef.current, {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+          ease: "back.out(1.7)",
+        });
+      } else {
+        gsap.to(mobileMenuRef.current, {
+          opacity: 0,
+          y: -20,
+          duration: 0.4,
+          ease: "back.out(1.7)",
+          onComplete: () => {
+            if (mobileMenuRef.current) {
+              gsap.set(mobileMenuRef.current, { display: "none" });
+            }
+          },
+        });
+      }
+    }
+  }, [open]);
+
   return (
     <>
-      <motion.div
-        animate={{
-          backdropFilter: "blur(16px)",
-          background: visible ? "rgba(0, 0, 0, 0.7)" : "rgba(0, 0, 0, 0.4)",
-          width: visible ? "80%" : "90%",
-          y: visible ? 0 : 8,
-          borderRadius: open ? "24px" : "full",
-          padding: "8px 16px",
-        }}
-        initial={{
-          width: "80%",
-          background: "rgba(0, 0, 0, 0.4)",
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 400,
-          damping: 30,
-        }}
+      <div
+        ref={mobileNavRef}
         className={cn(
           "flex relative flex-col lg:hidden w-full justify-between items-center max-w-[calc(100vw-2rem)] mx-auto z-50 backdrop-saturate-[1.8] border border-solid border-white/40 rounded-full"
         )}
@@ -214,44 +293,25 @@ const MobileNav = ({ navItems, visible }: NavbarProps) => {
           )}
         </div>
 
-        <AnimatePresence>
-          {open && (
-            <motion.div
-              initial={{
-                opacity: 0,
-                y: -20,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
-              exit={{
-                opacity: 0,
-                y: -20,
-              }}
-              transition={{
-                type: "spring",
-                stiffness: 400,
-                damping: 30,
-              }}
-              className="flex rounded-3xl absolute top-16 bg-black/80 backdrop-blur-xl backdrop-saturate-[1.8] inset-x-0 z-50 flex-col items-start justify-start gap-4 w-full px-6 py-8"
-            >
-              {navItems.map(
-                (navItem: { link: string; name: string }, idx: number) => (
-                  <Link
-                    key={`link=${idx}`}
-                    href={navItem.link}
-                    onClick={() => setOpen(false)}
-                    className="relative text-white/90 hover:text-white transition-colors"
-                  >
-                    <motion.span className="block">{navItem.name}</motion.span>
-                  </Link>
-                )
-              )}
-            </motion.div>
+        <div
+          ref={mobileMenuRef}
+          className="flex rounded-3xl absolute top-16 bg-black/80 backdrop-blur-xl backdrop-saturate-[1.8] inset-x-0 z-50 flex-col items-start justify-start gap-4 w-full px-6 py-8"
+          style={{ display: "none" }}
+        >
+          {navItems.map(
+            (navItem: { link: string; name: string }, idx: number) => (
+              <Link
+                key={`link=${idx}`}
+                href={navItem.link}
+                onClick={() => setOpen(false)}
+                className="relative text-white/90 hover:text-white transition-colors"
+              >
+                <span className="block">{navItem.name}</span>
+              </Link>
+            )
           )}
-        </AnimatePresence>
-      </motion.div>
+        </div>
+      </div>
     </>
   );
 };
