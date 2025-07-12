@@ -22,9 +22,11 @@ export function Hero() {
   const buttonRef = useRef<HTMLDivElement>(null);
   const cardSectionRef = useRef<HTMLDivElement>(null);
 
-  const [isMobile, setIsMobile] = React.useState(false);
+  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(
+    undefined
+  );
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
     };
@@ -42,7 +44,8 @@ export function Hero() {
       !titleRef.current ||
       !descriptionRef.current ||
       !buttonRef.current ||
-      !cardSectionRef.current
+      !cardSectionRef.current ||
+      isMobile === undefined
     )
       return;
 

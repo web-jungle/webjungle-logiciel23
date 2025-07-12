@@ -333,28 +333,11 @@ const Section = ({
             reverse ? "lg:grid-flow-col-dense" : ""
           }`}
         >
-          {/* Card */}
-          <div
-            className={`${
-              reverse ? "lg:col-start-2" : ""
-            } order-1 lg:order-none`}
-          >
-            <div ref={cardRef} className="relative opacity-100">
-              <Card
-                isLargeOnMobile={isLargeOnMobile}
-                customScale={customScale}
-                mobileHeight={mobileHeight}
-              >
-                {children}
-              </Card>
-            </div>
-          </div>
-
           {/* Texte amélioré */}
           <div
             className={`${
               reverse ? "lg:col-start-1" : ""
-            } relative order-2 lg:order-none`}
+            } relative order-1 lg:order-none`}
           >
             <div
               ref={textRef}
@@ -405,6 +388,23 @@ const Section = ({
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Card */}
+          <div
+            className={`${
+              reverse ? "lg:col-start-2" : ""
+            } order-2 lg:order-none`}
+          >
+            <div ref={cardRef} className="relative opacity-100">
+              <Card
+                isLargeOnMobile={isLargeOnMobile}
+                customScale={customScale}
+                mobileHeight={mobileHeight}
+              >
+                {children}
+              </Card>
             </div>
           </div>
         </div>
