@@ -32,7 +32,7 @@
 
 "use client";
 import { cn } from "@/lib/utils";
-import { animate } from "motion/react";
+import { gsap } from "gsap";
 import { memo, useEffect, useRef } from "react";
 
 interface GlowingEffectProps {
@@ -60,7 +60,7 @@ const GlowingEffect = memo(
     rotationSpeed = 3,
   }: GlowingEffectProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
-    const animationRef = useRef<ReturnType<typeof animate> | null>(null);
+    const animationRef = useRef<gsap.core.Tween | null>(null);
 
     useEffect(() => {
       if (disabled || !containerRef.current) return;
@@ -71,19 +71,23 @@ const GlowingEffect = memo(
       element.style.setProperty("--active", "1");
 
       if (autoRotate) {
-        // Animation continue de rotation
+        // Animation continue de rotation avec GSAP
         const startAnimation = () => {
           if (animationRef.current) {
-            animationRef.current.stop();
+            animationRef.current.kill();
           }
 
-          animationRef.current = animate(0, 360, {
+          // Créer un objet proxy pour animer la valeur
+          const rotationObj = { value: 0 };
+
+          animationRef.current = gsap.to(rotationObj, {
+            value: 360,
             duration: rotationSpeed,
-            ease: "linear",
-            repeat: Infinity,
-            onUpdate: (value) => {
+            ease: "none", // Équivalent à "linear" de Motion
+            repeat: -1, // Équivalent à Infinity
+            onUpdate: () => {
               if (element) {
-                element.style.setProperty("--start", String(value));
+                element.style.setProperty("--start", String(rotationObj.value));
               }
             },
           });
@@ -94,7 +98,7 @@ const GlowingEffect = memo(
 
       return () => {
         if (animationRef.current) {
-          animationRef.current.stop();
+          animationRef.current.kill();
         }
       };
     }, [disabled, autoRotate, rotationSpeed]);
