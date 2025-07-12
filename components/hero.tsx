@@ -46,7 +46,15 @@ export function Hero() {
     )
       return;
 
-    // État initial des éléments
+    // Configuration de la perspective 3D optimisée pour un rendu Framer Motion
+    gsap.set(cardRef.current, {
+      transformPerspective: 1000,
+      transformOrigin: "center center",
+      force3D: true,
+      willChange: "transform",
+    });
+
+    // État initial des éléments avec des valeurs optimisées
     gsap.set(
       [
         titleRef.current,
@@ -56,6 +64,7 @@ export function Hero() {
       ],
       {
         opacity: 0,
+        force3D: true,
       }
     );
 
@@ -63,169 +72,158 @@ export function Hero() {
     gsap.set([descriptionRef.current, buttonRef.current], { y: 10 });
     gsap.set(cardSectionRef.current, { y: 20 });
 
-    // Timeline pour les animations d'entrée
+    // Configuration initiale de la carte avec perspective
+    gsap.set(cardRef.current, {
+      rotationX: isMobile ? 12 : 20,
+      scale: isMobile ? 0.8 : 1.0,
+      z: 0,
+    });
+
+    // Timeline pour les animations d'entrée avec courbes d'easing type Framer Motion
     const tl = gsap.timeline();
 
-    // Animation du titre (équivalent à delay: 0.2, duration: 0.5)
+    // Animation du titre (courbe d'easing Framer Motion)
     tl.to(
       titleRef.current,
       {
         opacity: 1,
-        duration: 0.5,
+        duration: 0.6,
         ease: "power2.out",
       },
       0.2
     );
 
-    // Animation de la description (équivalent à delay: 0.5, duration: 0.2)
+    // Animation de la description
     tl.to(
       descriptionRef.current,
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.2,
-        ease: "power2.out",
-      },
-      0.5
-    );
-
-    // Animation du bouton (équivalent à delay: 0.7, duration: 0.2)
-    tl.to(
-      buttonRef.current,
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.2,
-        ease: "power2.out",
-      },
-      0.7
-    );
-
-    // Animation de la carte (équivalent à delay: 0.9, duration: 0.4)
-    tl.to(
-      cardSectionRef.current,
       {
         opacity: 1,
         y: 0,
         duration: 0.4,
         ease: "power2.out",
       },
-      0.9
+      0.4
     );
 
-    // ScrollTrigger pour les animations liées au scroll
+    // Animation du bouton
+    tl.to(
+      buttonRef.current,
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.4,
+        ease: "power2.out",
+      },
+      0.6
+    );
+
+    // Animation de la carte avec effet de perspective fluide
+    tl.to(
+      cardSectionRef.current,
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "power2.out",
+      },
+      0.8
+    );
+
+    // ScrollTrigger pour les animations de perspective au scroll
     const scrollAnimation = () => {
-      const rotateRange = isMobile ? [10, 0] : [20, 0];
-      const scaleRange = isMobile ? [0.7, 0.9] : [1.05, 1.2];
-      const titleTranslateRange = isMobile ? [0, -20] : [0, -50];
-      const cardTranslateRange = isMobile ? [0, 20] : [0, 50];
+      // Paramètres optimisés pour un effet de relèvement naturel
+      const rotateRange = isMobile ? [12, 0] : [20, 0];
+      const scaleRange = isMobile ? [0.8, 0.95] : [1.0, 1.15];
+      const titleTranslateRange = isMobile ? [0, -25] : [0, -60];
+      const cardTranslateRange = isMobile ? [0, 30] : [0, 80];
 
-      // Animation de rotation et translation de la carte
-      gsap.fromTo(
-        cardRef.current,
-        {
-          rotationX: rotateRange[0],
-          scale: scaleRange[0],
+      // Paramètres pour la profondeur (Z) seulement
+      const zRange = [0, isMobile ? 30 : 50];
+
+      // Animation principale de la carte - effet de relèvement simple
+      ScrollTrigger.create({
+        trigger: containerRef.current,
+        start: "top top",
+        end: "bottom top",
+        scrub: 1, // Scrub plus direct pour un effet naturel
+        onUpdate: (self) => {
+          const progress = self.progress;
+
+          // Rotation X (effet de relèvement principal)
+          const rotateXProgress = Math.min(progress / 0.5, 1);
+          const currentRotateX = gsap.utils.interpolate(
+            rotateRange[0],
+            rotateRange[1],
+            gsap.parseEase("power2.out")(rotateXProgress)
+          );
+
+          // Scale avec courbe douce
+          const scaleProgress = Math.min(progress / 0.8, 1);
+          const currentScale = gsap.utils.interpolate(
+            scaleRange[0],
+            scaleRange[1],
+            gsap.parseEase("power1.inOut")(scaleProgress)
+          );
+
+          // Translation Z pour profondeur subtile
+          const zProgress = Math.min(progress / 0.6, 1);
+          const currentZ = gsap.utils.interpolate(
+            zRange[0],
+            zRange[1],
+            gsap.parseEase("power2.out")(zProgress)
+          );
+
+          // Application des transformations 3D - seulement rotation X
+          gsap.set(cardRef.current, {
+            rotationX: currentRotateX,
+            scale: currentScale,
+            z: currentZ,
+            force3D: true,
+          });
         },
-        {
-          rotationX: rotateRange[1],
-          scale: scaleRange[1],
-          ease: "none",
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: "top top",
-            end: "bottom top",
-            scrub: true,
-            onUpdate: (self) => {
-              // Animation personnalisée basée sur le progress du scroll
-              const progress = self.progress;
+      });
 
-              // Rotation (0 à 30% du scroll)
-              const rotateProgress = Math.min(progress / 0.3, 1);
-              const currentRotate = gsap.utils.interpolate(
-                rotateRange[0],
-                rotateRange[1],
-                rotateProgress
-              );
+      // Animation du titre avec courbe fluide
+      ScrollTrigger.create({
+        trigger: containerRef.current,
+        start: "top top",
+        end: "bottom top",
+        scrub: 1,
+        onUpdate: (self) => {
+          const progress = Math.min(self.progress / 0.6, 1);
+          const currentY = gsap.utils.interpolate(
+            titleTranslateRange[0],
+            titleTranslateRange[1],
+            gsap.parseEase("power1.out")(progress)
+          );
 
-              // Scale (0 à 80% du scroll)
-              const scaleProgress = Math.min(progress / 0.8, 1);
-              const currentScale = gsap.utils.interpolate(
-                scaleRange[0],
-                scaleRange[1],
-                scaleProgress
-              );
-
-              gsap.set(cardRef.current, {
-                rotationX: currentRotate,
-                scale: currentScale,
-              });
-            },
-          },
-        }
-      );
-
-      // Animation du titre avec le scroll
-      gsap.fromTo(
-        titleRef.current,
-        {
-          y: titleTranslateRange[0],
+          gsap.set(titleRef.current, {
+            y: currentY,
+            force3D: true,
+          });
         },
-        {
-          y: titleTranslateRange[1],
-          ease: "none",
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: "top top",
-            end: "bottom top",
-            scrub: true,
-            onUpdate: (self) => {
-              // Translation du titre (0 à 60% du scroll)
-              const progress = Math.min(self.progress / 0.6, 1);
-              const currentY = gsap.utils.interpolate(
-                titleTranslateRange[0],
-                titleTranslateRange[1],
-                progress
-              );
+      });
 
-              gsap.set(titleRef.current, {
-                y: currentY,
-              });
-            },
-          },
-        }
-      );
+      // Animation de la section carte avec effet de parallax
+      ScrollTrigger.create({
+        trigger: containerRef.current,
+        start: "top top",
+        end: "bottom top",
+        scrub: 1,
+        onUpdate: (self) => {
+          const progress = Math.min(self.progress / 0.6, 1);
+          const currentY = gsap.utils.interpolate(
+            cardTranslateRange[0],
+            cardTranslateRange[1],
+            gsap.parseEase("power1.out")(progress)
+          );
 
-      // Animation de translation de la carte avec le scroll
-      gsap.fromTo(
-        cardSectionRef.current,
-        {
-          y: cardTranslateRange[0],
+          gsap.set(cardSectionRef.current, {
+            y: currentY,
+            force3D: true,
+          });
         },
-        {
-          y: cardTranslateRange[1],
-          ease: "none",
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: "top top",
-            end: "bottom top",
-            scrub: true,
-            onUpdate: (self) => {
-              // Translation de la carte (0 à 60% du scroll)
-              const progress = Math.min(self.progress / 0.6, 1);
-              const currentY = gsap.utils.interpolate(
-                cardTranslateRange[0],
-                cardTranslateRange[1],
-                progress
-              );
-
-              gsap.set(cardSectionRef.current, {
-                y: currentY,
-              });
-            },
-          },
-        }
-      );
+      });
     };
 
     scrollAnimation();
@@ -302,7 +300,7 @@ export function Hero() {
     >
       <div
         style={{
-          perspective: "1000px",
+          perspective: "1200px",
           willChange: "transform",
         }}
         className="rounded-[50px] relative"
@@ -370,6 +368,7 @@ export const Card = ({
       style={{
         willChange: "transform",
         transform: "translate3d(0, 0, 0)",
+        transformStyle: "preserve-3d",
         boxShadow:
           "0 0 #0000004d, 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 149px 60px #0000000a, 0 233px 65px #00000003",
       }}
